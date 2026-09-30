@@ -1,10 +1,8 @@
 import streamlit as st
 from pypdf import PdfReader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.chains.question_answering import load_qa_chain
-from langchain_community.llms import HuggingFaceHub
 
 # Set up page configuration
 st.set_page_config(page_title="Focus Flow AI", page_icon="🎓", layout="wide")
@@ -34,7 +32,6 @@ def get_vector_store(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     chunks = text_splitter.split_text(text)
     
-    # Pre-trained Lightweight Embedding Model
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     vector_store = FAISS.from_texts(chunks, embedding=embeddings)
     return vector_store
@@ -48,7 +45,6 @@ if uploaded_file is not None:
         vector_store = get_vector_store(raw_text)
         st.success("Document processed and ready for Q&A!")
 
-    # Chat / Query Section
     user_question = st.text_input("Ask a question about your uploaded document:")
     
     if user_question:
@@ -58,7 +54,6 @@ if uploaded_file is not None:
         for idx, doc in enumerate(docs):
             st.markdown(f"**Context {idx + 1}:**\n{doc.page_content}\n")
         
-        # Summary & Flashcard generator mock response
         st.subheader("⚡ Flashcard Generation:")
         st.write(f"**Q:** What is the main summary regarding '{user_question}'?")
         st.write(f"**A:** Based on your uploaded notes, the key takeaways are detailed in Context 1 above.")
